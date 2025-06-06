@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Registro - Microservicio</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+  .register-container {
+    background: white;
+    padding: 2.5rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    width: 400px;
+  }
+  h2 {
+    text-align: center;
+    color: #d63447;
+    margin-bottom: 1.5rem;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #555;
+    font-weight: 600;
+  }
+  input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1.8px solid #ccc;
+    transition: border-color 0.3s;
+    font-size: 1rem;
+  }
+  input[type="text"]:focus, input[type="password"]:focus, input[type="email"]:focus, input[type="tel"]:focus {
+    outline: none;
+    border-color: #d63447;
+  }
+  button {
+    width: 100%;
+    padding: 0.7rem;
+    background: #d63447;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #a02630;
+  }
+  p.msg {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #e74c3c;
+    text-align: center;
+  }
+  .links {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  .links a {
+    color: #d63447;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .links a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Registrar Usuario</h2>
+    <form id="registerForm"> 
+      <label for="nombre">Nombre</label>
+      <input id="nombre" name="nombre" type="text" required />
+
+      <label for="apellidos">Apellidos</label>
+      <input id="apellidos" name="apellidos" type="text" required />
+
+      <label for="celular">Celular</label>
+      <input id="celular" name="celular" type="tel" pattern="[0-9]{10}" placeholder="Ej: 3001234567" required />
+
+      <label for="email">Correo electrónico</label>
+      <input id="email" name="email" type="email" required />
+
+      <label for="direccion">Dirección</label>
+      <input id="direccion" name="direccion" type="text" required />
+
+      <label for="username">Usuario</label>
+      <input id="username" name="username" type="text" required />
+
+      <label for="password">Contraseña</label>
+      <input id="password" name="password" type="password" required />
+
+      <button type="submit">Registrarse</button>
+    </form>
+    {% if msg %}
+      <p class="msg">{{ msg }}</p>
+    {% endif %}
+    <div class="links">
+      ¿Ya tienes cuenta? <a href="/login">Inicia sesión aquí</a>
+    </div>
+  </div>
+
+<script>
+// Versión mejorada del script
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    // 1. Crear objeto con los datos
+    const formData = {
+        nombre: e.target.nombre.value,
+        apellidos: e.target.apellidos.value,
+        celular: e.target.celular.value,
+        email: e.target.email.value,
+        direccion: e.target.direccion.value,
+        username: e.target.username.value,
+        password: e.target.password.value
+    };
+
+    // 2. Debug: Verifica los datos en consola
+    console.log("Enviando:", formData);
+    
+    try {
+        // 3. Enviar como JSON
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        // 4. Manejar respuesta
+        const data = await response.json();
+        console.log("Respuesta:", data);
+        
+        if (response.ok && data.redirect) {
+            window.location.href = data.redirect;
+        } else {
+            throw new Error(data.error || "Error desconocido");
+        }
+    } catch (error) {
+        console.error("Error en registro:", error);
+        // Mostrar error al usuario
+        const errorElement = document.querySelector('.msg') || document.createElement('p');
+        errorElement.className = 'msg';
+        errorElement.textContent = error.message;
+        if (!document.querySelector('.msg')) {
+            document.querySelector('.register-container').appendChild(errorElement);
+        }
+    }
+});
+</script>
+
+</body>
+</html>

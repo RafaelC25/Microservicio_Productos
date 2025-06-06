@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Login - Microservicio</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+  .login-container {
+    background: white;
+    padding: 2.5rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    width: 350px;
+  }
+  h2 {
+    text-align: center;
+    color: #5a3eae;
+    margin-bottom: 1.5rem;
+  }
+  label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #555;
+    font-weight: 600;
+  }
+  input[type="text"], input[type="password"], input[type="email"], input[type="tel"] {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1.8px solid #ccc;
+    transition: border-color 0.3s;
+    font-size: 1rem;
+  }
+  input[type="text"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #764ba2;
+  }
+  button {
+    width: 100%;
+    padding: 0.7rem;
+    background: #764ba2;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background 0.3s;
+  }
+  button:hover {
+    background: #5a3eae;
+  }
+  p.msg {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: #e74c3c;
+    text-align: center;
+  }
+  .links {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  .links a {
+    color: #764ba2;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .links a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Iniciar Sesión</h2>
+    <form method="POST" action="/login">
+      <label for="username">Usuario</label>
+      <input id="username" name="username" type="text" required />
+      
+      <label for="password">Contraseña</label>
+      <input id="password" name="password" type="password" required />
+      
+      <button type="submit">Entrar</button>
+    </form>
+    {% if msg %}
+      <p class="msg">{{ msg }}</p>
+    {% endif %}
+    <div class="links">
+      ¿No tienes cuenta? <a href="/register">Regístrate aquí</a>
+    </div>
+  </div>
+</body>
+
+<script>
+document.querySelector('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const response = await fetch('/login', {
+        method: 'POST',
+        body: formData,
+        credentials: 'same-origin'  // Importante para cookies
+    });
+    
+    if (response.redirected) {
+        window.location.href = response.url;
+    } else {
+        const error = await response.text();
+        const errorElement = document.createElement('p');
+        errorElement.className = 'msg';
+        errorElement.textContent = 'Credenciales inválidas';
+        
+        const existingError = document.querySelector('.msg');
+        if (existingError) {
+            existingError.remove();
+        }
+        
+        document.querySelector('.login-container').appendChild(errorElement);
+    }
+});
+</script>
+</html>
