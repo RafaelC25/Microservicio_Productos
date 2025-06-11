@@ -1,84 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario de Productos</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <title>Login y Registro</title>
+  <link rel="stylesheet" href="login.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🏪 Sistema de Inventario TORNIMAQ</h1>
-        
-        <!-- Sección de Productos -->
-        <div class="card">
-            <h2>📦 Productos</h2>
-            <div id="product-alert" class="alert" style="display: none;"></div>
-            <table id="products-table" style="width: 100%;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre</th>
-                        <th>Precio</th>
-                        <th>Cantidad</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <div style="margin-top: 32px;">
-                <h3>➕ Añadir Producto</h3>
-                <form id="add-product-form">
-                    <div class="form-group">
-                        <label for="name">Nombre:</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="price">Precio:</label>
-                        <input type="number" id="price" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="quantity">Cantidad:</label>
-                        <input type="number" id="quantity" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Agregar</button>
-                </form>
-            </div>
-        </div>
+  <div class="container">
+    <h2>Registro</h2>
+    <input type="text" id="regUser" placeholder="Usuario">
+    <input type="password" id="regPass" placeholder="Contraseña">
+    <button onclick="register()">Registrar</button>
 
-        <!-- Sección de Ventas -->
-        <div class="card" style="margin-top: 40px;">
-            <h2>💰 Registrar Venta</h2>
-            <div id="sale-alert" class="alert" style="display: none;"></div>
-            <form id="sale-form">
-                <div class="form-group">
-                    <label for="product_id"> Ingresa la ID del Producto:</label>
-                    <input type="number" id="product_id" required>
-                    
-                </div>
-                <div class="form-group">
-                    <label for="quantity">Cantidad:</label>
-                    <input type="number" id="quantity" min="1" value="1" required>
-                </div>
-                <button type="submit" class="btn btn-success">Registrar Venta</button>
-            </form>
-            
-            <h3>📝 Historial de Ventas</h3>
-            <table id="sales-table">
-                <thead>
-                    <tr>
-                        <th>ID Venta</th>
-                        <th>Producto</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                        <th>Fecha</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </div>
 
-    <script src="app.js"></script>
+    
+    <h2>Login</h2>
+    <input type="text" id="logUser" placeholder="Usuario">
+    <input type="password" id="logPass" placeholder="Contraseña">
+    <button onclick="login()">Ingresar</button>
+
+    <div class="msg" id="msg"></div>
+  </div>
+
+  <script>
+    async function register() {
+      const username = document.getElementById("regUser").value;
+      const password = document.getElementById("regPass").value;
+
+      const res = await fetch("http://localhost:5001/api/register", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        localStorage.setItem("username", username);
+        window.location.href = "products.html";
+      } else {
+        document.getElementById("msg").textContent = data.error;
+      }
+    }
+
+    async function login() {
+      const username = document.getElementById("logUser").value;
+      const password = document.getElementById("logPass").value;
+
+      const res = await fetch("http://localhost:5001/api/login", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        localStorage.setItem("username", username);
+        window.location.href = "products.html";
+      } else {
+        document.getElementById("msg").textContent = data.error;
+      }
+    }
+  </script>
 </body>
 </html>

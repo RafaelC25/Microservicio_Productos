@@ -1,0 +1,10 @@
+services:
+  login:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: login_container
+    restart: always
+    
+    ports:
+      - "5001:5001"
