@@ -53,6 +53,7 @@ class Sale(db.Model):
     quantity = db.Column(db.Integer, nullable=False)  # Cantidad vendida
     sale_date = db.Column(db.DateTime, server_default=db.text('CURRENT_TIMESTAMP'))  # Fecha automática
     total_venta = db.Column(db.Numeric(10, 2), nullable=False)  # Total de la venta
+    product = db.relationship('Product', backref='sale')
     
 
 # =============================================
@@ -215,25 +216,39 @@ def sell_product(id):
 
 @app.route('/sales', methods=['GET'])
 def get_sales():
-    """Obtener todas las ventas con paginación"""
     try:
-        # Paginación (opcional)
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 10, type=int)
-        
-        sales = Sale.query.order_by(Sale.sale_date.desc()).paginate(
-            page=page, 
+
+        sales_paginated = Sale.query.order_by(Sale.sale_date.desc()).paginate(
+            page=page,
             per_page=per_page,
             error_out=False
         )
-        
+
+        sales = []
+        for sale in sales_paginated.items:
+            product_name = sale.product.name if sale.product else "Producto no disponible"
+            sales.append({
+                "id": sale.id,
+                "product_id": sale.product_id,
+                "quantity": sale.quantity,
+                "sale_date": sale.sale_date.strftime("%Y-%m-%d %H:%M:%S"),
+                "total_venta": sale.total_venta,
+                "product_name": product_name
+            })
+
         return jsonify({
-            "sales": sales_schema.dump(sales.items),
-            "total": sales.total,
-            "pages": sales.pages,
-            "current_page": sales.page
+            "sales": sales,
+            "total": sales_paginated.total,
+            "pages": sales_paginated.pages,
+            "current_page": sales_paginated.page
         })
+
     except Exception as e:
+        # Para depurar: imprime el error completo en la consola
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 # =============================================
