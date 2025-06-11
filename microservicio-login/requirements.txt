@@ -1,5 +1,0 @@
-flask==3.0.2
-pyjwt==2.8.0
-python-dotenv==1.0.0
-werkzeug==3.0.1
-sqlalchemy==2.0.25

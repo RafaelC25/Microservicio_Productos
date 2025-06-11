@@ -1,16 +1,13 @@
-FROM python:3.10-slim
+FROM python:3.13-slim
 
 WORKDIR /app
-
-# Instalar dependencias para psycopg2
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
-
+# Install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install --no-cache-dir -r requirements.txt
+ENV DB_URI=$DB_URI 
 COPY . .
 
-CMD ["python", "products.py"]
+EXPOSE 8000
+
+CMD ["gunicorn", "--bind=0.0.0.0:8000", "products:app"] 
